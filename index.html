@@ -42,6 +42,19 @@
     width:100%;
     max-width:560px;
   }
+  body.admin-wide{
+    align-items:flex-start;
+    padding:32px 24px 64px;
+  }
+  body.admin-wide .sheet{
+    max-width:1100px;
+  }
+  body.admin-wide .masthead,
+  body.admin-wide .facts,
+  body.admin-wide .contact-footer,
+  body.admin-wide .admin-link{
+    display:none;
+  }
 
   /* ---- Header / masthead ---- */
   .masthead{
@@ -531,6 +544,26 @@
   .cat-chip.youth{color:var(--gold);}
   .cat-chip.adult{color:var(--blue);}
 
+  .btn-delete{
+    background:rgba(232,96,122,0.1);
+    border:1px solid rgba(232,96,122,0.35);
+    color:var(--maroon);
+    width:26px;
+    height:26px;
+    border-radius:8px;
+    font-size:13px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .btn-delete:hover{
+    background:rgba(232,96,122,0.22);
+    border-color:var(--maroon);
+  }
+
   .empty-state{
     text-align:center;
     padding:32px 10px;
@@ -672,7 +705,7 @@
   </div>
 
   <div class="admin-link">
-    <button type="button" onclick="showAdminGate()">Admin · view registrations</button>
+    <button type="button" onclick="openAdminTab()">Admin · view registrations</button>
   </div>
 
   <!-- Admin password gate -->
@@ -707,7 +740,7 @@
       <table class="reg-table" id="regTable">
         <thead>
           <tr>
-            <th>#</th><th>Name</th><th>Age</th><th>Category</th><th>Phone</th><th>Care cell</th><th>Registered</th>
+            <th>#</th><th>Name</th><th>Age</th><th>Category</th><th>Phone</th><th>Church</th><th>Registered</th><th></th>
           </tr>
         </thead>
         <tbody id="regTableBody"></tbody>
@@ -722,7 +755,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp
+    getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -799,7 +832,7 @@
         <div><span class="k">Name</span><span class="v">${name}</span></div>
         <div><span class="k">Age</span><span class="v">${ageNum} (${category.value.split(' ')[0]})</span></div>
         <div><span class="k">Phone</span><span class="v">${phone}</span></div>
-        <div><span class="k">Care cell</span><span class="v">${careCell || '—'}</span></div>
+        <div><span class="k">Church</span><span class="v">${careCell || '—'}</span></div>
       `;
       form.style.display = 'none';
       confirmCard.style.display = 'block';
@@ -826,10 +859,16 @@
   let allRegistrations = [];
   const ADMIN_STORAGE_KEY = 'kgAdminPasscode';
 
+  window.openAdminTab = function(){
+    const url = window.location.pathname + '?admin=1';
+    window.open(url, '_blank');
+  };
+
   window.showAdminGate = async function(){
     form.style.display = 'none';
     confirmCard.style.display = 'none';
     document.getElementById('adminPanel').style.display = 'none';
+    document.body.classList.add('admin-wide');
 
     const saved = localStorage.getItem(ADMIN_STORAGE_KEY);
     if(saved === ADMIN_PASSCODE){
@@ -849,6 +888,7 @@
   window.hideAdmin = function(){
     document.getElementById('adminGate').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'none';
+    document.body.classList.remove('admin-wide');
     form.style.display = 'block';
   };
 
@@ -866,6 +906,7 @@
     localStorage.setItem(ADMIN_STORAGE_KEY, entered);
     document.getElementById('adminGate').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
+    document.body.classList.add('admin-wide');
     await loadRegistrations();
   };
 
@@ -873,6 +914,10 @@
     localStorage.removeItem(ADMIN_STORAGE_KEY);
     backToRegistration();
   };
+
+  if(new URLSearchParams(window.location.search).get('admin') === '1'){
+    showAdminGate();
+  }
 
   async function loadRegistrations(){
     const tbody = document.getElementById('regTableBody');
@@ -931,6 +976,7 @@
         <td>${escapeHtml(r.phone)}</td>
         <td>${escapeHtml(r.careCell)}</td>
         <td>${r.createdAt ? r.createdAt.toLocaleDateString('en-IN', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '—'}</td>
+        <td><button type="button" class="btn-delete" onclick="deleteRegistration('${r.id}')" title="Delete registration">✕</button></td>
       </tr>
     `).join('');
   }
@@ -950,7 +996,7 @@
       return catMatch && searchMatch;
     });
 
-    const headers = ['Name', 'Age', 'Category', 'Phone', 'Care Cell', 'Registered'];
+    const headers = ['Name', 'Age', 'Category', 'Phone', 'Church', 'Registered'];
     const rows = filtered.map(r => [
       r.name, r.age, r.category, r.phone, r.careCell,
       r.createdAt ? r.createdAt.toLocaleString('en-IN') : ''
@@ -966,6 +1012,21 @@
     a.download = `bible_quiz_registrations_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  window.deleteRegistration = async function(id){
+    const reg = allRegistrations.find(r => r.id === id);
+    const label = reg ? reg.name : 'this registration';
+    if(!confirm(`Delete registration for "${label}"? This cannot be undone.`)) return;
+
+    try{
+      await deleteDoc(doc(db, COLLECTION, id));
+      allRegistrations = allRegistrations.filter(r => r.id !== id);
+      renderTable();
+    } catch(err){
+      console.error('Failed to delete registration:', err);
+      alert('Could not delete this registration. Please check your connection and try again.');
+    }
   };
 
   document.getElementById('filterCategory').addEventListener('change', renderTable);
