@@ -42,17 +42,16 @@
     width:100%;
     max-width:560px;
   }
-  body.admin-wide{
+  body.admin-mode{
     align-items:flex-start;
     padding:32px 24px 64px;
   }
   body.admin-wide .sheet{
     max-width:1100px;
   }
-  body.admin-wide .masthead,
-  body.admin-wide .facts,
-  body.admin-wide .contact-footer,
-  body.admin-wide .admin-link{
+  body.admin-mode .facts,
+  body.admin-mode .contact-footer,
+  body.admin-mode .admin-link{
     display:none;
   }
 
@@ -303,6 +302,11 @@
     border-color:var(--gold);
     background:rgba(240,180,41,0.12);
     color:var(--gold);
+  }
+  .radio-pill input:disabled + label{
+    opacity:0.35;
+    cursor:not-allowed;
+    pointer-events:none;
   }
 
   .fee-note{
@@ -781,6 +785,33 @@
     document.getElementById(id).classList.toggle('invalid', invalid);
   }
 
+  const ageInput = document.getElementById('age');
+  const catKids = document.getElementById('cat-kids');
+  const catYouth = document.getElementById('cat-youth');
+  const catAdult = document.getElementById('cat-adult');
+
+  function updateCategoryAvailability(){
+    const age = parseInt(ageInput.value, 10);
+    const hasAge = ageInput.value.trim() !== '' && !isNaN(age);
+
+    const allow = {
+      kids: !hasAge || age <= 12,
+      youth: !hasAge || (age >= 13 && age <= 25),
+      adult: !hasAge || age >= 26
+    };
+
+    catKids.disabled = !allow.kids;
+    catYouth.disabled = !allow.youth;
+    catAdult.disabled = !allow.adult;
+
+    // Uncheck any selection that's no longer valid for the entered age
+    if(catKids.checked && !allow.kids) catKids.checked = false;
+    if(catYouth.checked && !allow.youth) catYouth.checked = false;
+    if(catAdult.checked && !allow.adult) catAdult.checked = false;
+  }
+
+  ageInput.addEventListener('input', updateCategoryAvailability);
+
   form.addEventListener('submit', async function(e){
     e.preventDefault();
 
@@ -868,13 +899,15 @@
     form.style.display = 'none';
     confirmCard.style.display = 'none';
     document.getElementById('adminPanel').style.display = 'none';
-    document.body.classList.add('admin-wide');
+    document.body.classList.add('admin-mode');
+    document.body.classList.remove('admin-wide');
 
     const saved = localStorage.getItem(ADMIN_STORAGE_KEY);
     if(saved === ADMIN_PASSCODE){
       // Already logged in on this device — skip straight to the admin panel
       document.getElementById('adminGate').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
+      document.body.classList.add('admin-wide');
       await loadRegistrations();
       return;
     }
@@ -888,7 +921,7 @@
   window.hideAdmin = function(){
     document.getElementById('adminGate').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'none';
-    document.body.classList.remove('admin-wide');
+    document.body.classList.remove('admin-mode', 'admin-wide');
     form.style.display = 'block';
   };
 
