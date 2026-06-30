@@ -614,6 +614,156 @@
     font-style:normal;
   }
 
+  .pay-choice-group{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .pay-choice-pill{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    background:rgba(255,255,255,0.03);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    padding:12px 10px;
+    cursor:pointer;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .pay-choice-pill .title{
+    font-size:14.5px;
+    font-weight:700;
+    color:var(--text);
+  }
+  .pay-choice-pill .sub{
+    font-size:11px;
+    color:var(--text-faint);
+  }
+  .pay-choice-pill.selected{
+    border-color:var(--green);
+    background:rgba(62,207,142,0.1);
+  }
+  .pay-choice-pill.selected .title{
+    color:var(--green);
+  }
+  .pay-choice-pill#choicePayNow.selected{
+    border-color:var(--gold);
+    background:rgba(240,180,41,0.1);
+  }
+  .pay-choice-pill#choicePayNow.selected .title{
+    color:var(--gold);
+  }
+
+  .pay-box{
+    display:block;
+    background:var(--panel-soft);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin:0 0 17px;
+  }
+  .pay-now-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    background:linear-gradient(135deg, var(--green), #2fa876);
+    color:#06140e;
+    font-weight:800;
+    font-size:15px;
+    text-decoration:none;
+    border-radius:11px;
+    padding:13px 16px;
+    margin:10px 0 4px;
+    box-shadow:0 8px 20px rgba(62,207,142,0.25);
+  }
+  .show-qr-link{
+    display:block;
+    margin:10px auto 0;
+    background:none;
+    border:none;
+    color:var(--blue);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+    width:100%;
+  }
+  .pay-qr{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    margin-top:14px;
+  }
+  .pay-qr .qr-img{
+    width:140px;
+    height:140px;
+    background:#fff;
+    border-radius:8px;
+    padding:6px;
+    display:block;
+  }
+  .pay-qr .qr-label{
+    font-size:9.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .pay-details{flex:1;}
+  .pay-details .k{
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .pay-details .v{
+    font-size:14.5px;
+    font-weight:700;
+    color:var(--gold);
+    word-break:break-all;
+  }
+  .pay-details .fee-sub-note{
+    margin-top:6px;
+  }
+
+  input[type="file"]{
+    padding:9px 13px;
+    cursor:pointer;
+  }
+  input[type="file"]::-webkit-file-upload-button{
+    background:var(--panel-soft);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    padding:6px 12px;
+    margin-right:10px;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:13px;
+    cursor:pointer;
+  }
+
+  .proof-thumb{
+    width:34px;
+    height:34px;
+    border-radius:6px;
+    object-fit:cover;
+    border:1px solid var(--border);
+    cursor:pointer;
+  }
+  .proof-missing{
+    font-size:11px;
+    color:var(--text-faint);
+  }
+
   .back-link{
     text-align:center;
     margin-top:16px;
@@ -724,7 +874,44 @@
       <span class="label">Registration fee</span>
       <span class="amount">₹100</span>
     </div>
-    <div class="fee-sub-note">Payable as walk-in at the venue on the day of the event.</div>
+
+    <div class="field" id="f-payChoice" style="margin-top:17px;">
+      <label>When will you pay?</label>
+      <div class="pay-choice-group">
+        <button type="button" class="pay-choice-pill" id="choicePayLater" data-choice="later">
+          <span class="title">Pay Later</span>
+          <span class="sub">At the venue</span>
+        </button>
+        <button type="button" class="pay-choice-pill" id="choicePayNow" data-choice="now">
+          <span class="title">Pay Now</span>
+          <span class="sub">Online via UPI</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="pay-box" id="payNowSection" style="display:none;">
+      <div class="pay-details">
+        <div class="k">Pay via UPI</div>
+        <div class="v" id="upiIdText">jeevakarunya26-4@okaxis</div>
+        <a href="#" id="payNowBtn" class="pay-now-btn" rel="noopener">Pay ₹100 Now</a>
+        <div class="fee-sub-note">Tap to pay using GPay, PhonePe, Paytm or any UPI app. After paying, upload your screenshot below.</div>
+        <button type="button" id="showQrBtn" class="show-qr-link">On a computer? Show QR to scan instead</button>
+        <div class="pay-qr" id="payQrWrap" style="display:none;">
+          <img id="upiQr" class="qr-img" alt="Scan to pay via UPI">
+          <span class="qr-label">Scan with any UPI app</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fee-sub-note" id="payLaterNote">You've chosen to pay ₹100 in cash or via UPI at the venue on the day of the event.</div>
+
+    <div class="field" id="f-paymentProof" style="display:none;">
+      <label for="paymentProof">Payment screenshot <span class="req">*</span></label>
+      <input type="file" id="paymentProof" name="paymentProof" accept="image/*">
+      <div class="hint" id="paymentProofHint">Upload a screenshot showing the successful payment.</div>
+      <div class="error-msg">Please upload your payment screenshot.</div>
+      <img id="paymentProofPreview" alt="Payment screenshot preview" style="display:none; max-width:160px; border-radius:10px; margin-top:8px; border:1px solid var(--border);">
+    </div>
 
     <button type="submit" class="submit" id="submitBtn">Confirm registration</button>
   </form>
@@ -782,7 +969,7 @@
       <table class="reg-table" id="regTable">
         <thead>
           <tr>
-            <th>#</th><th>Name</th><th>Contact</th><th>Age</th><th>Category</th><th>Phone</th><th>Church</th><th>Registered</th><th>Action</th>
+            <th>#</th><th>Name</th><th>Contact</th><th>Age</th><th>Category</th><th>Phone</th><th>Church</th><th>Payment</th><th>Registered</th><th>Action</th>
           </tr>
         </thead>
         <tbody id="regTableBody"></tbody>
@@ -818,6 +1005,289 @@
   const form = document.getElementById('regForm');
   const confirmCard = document.getElementById('confirmCard');
   const submitBtn = document.getElementById('submitBtn');
+
+  // ---- UPI payment QR ----
+  const UPI_ID = "jeevakarunya26-4@okaxis";
+  const UPI_PAYEE_NAME = "Kings Generation Church";
+  const UPI_AMOUNT = "100";
+  const upiUri = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_PAYEE_NAME)}&am=${UPI_AMOUNT}&cu=INR&tn=${encodeURIComponent("Bible Quiz Registration")}`;
+  document.getElementById('payNowBtn').addEventListener('click', function(e){
+    e.preventDefault();
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(upiUri)}`;
+    const w = window.open('', '_blank');
+    if(!w){ alert('Please allow pop-ups to continue payment.'); return; }
+    w.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pay ₹100 · Bible Quiz Registration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Plus Jakarta Sans',sans-serif;
+    background:#0a0e1a;
+    color:#eef1fb;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 16px;
+  }
+  .card{
+    background:#11162a;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:24px;
+    padding:32px 28px;
+    max-width:400px;
+    width:100%;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5);
+    text-align:center;
+  }
+  .icon{font-size:48px;margin-bottom:10px;}
+  h1{font-size:22px;font-weight:800;margin-bottom:4px;}
+  .sub{font-size:13px;color:#8891ab;margin-bottom:24px;}
+  .amount-badge{
+    display:inline-block;
+    background:rgba(240,180,41,0.15);
+    border:1px solid rgba(240,180,41,0.4);
+    color:#f0b429;
+    font-size:34px;
+    font-weight:800;
+    border-radius:16px;
+    padding:10px 28px;
+    margin-bottom:24px;
+  }
+  .upi-row{
+    background:#161d36;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:8px;
+    text-align:left;
+  }
+  .upi-row .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5c6584;font-weight:700;margin-bottom:3px;}
+  .upi-row .v{font-size:15px;font-weight:700;color:#f0b429;word-break:break-all;}
+  .copy-btn{
+    flex-shrink:0;
+    background:rgba(240,180,41,0.12);
+    border:1px solid rgba(240,180,41,0.3);
+    border-radius:8px;
+    color:#f0b429;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:12px;
+    font-weight:700;
+    padding:8px 14px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .copy-btn.copied{background:rgba(62,207,142,0.15);border-color:rgba(62,207,142,0.4);color:#3ecf8e;}
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#5c6584;
+    font-size:12px;
+    font-weight:600;
+    margin:20px 0;
+  }
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.07);}
+  .qr-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .qr-wrap img{
+    width:180px;height:180px;
+    background:#fff;
+    border-radius:12px;
+    padding:8px;
+  }
+  .qr-wrap .lbl{font-size:11px;color:#5c6584;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+  .pay-btn{
+    display:block;
+    width:100%;
+    background:linear-gradient(135deg,#3ecf8e,#2fa876);
+    color:#06140e;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:16px;
+    font-weight:800;
+    border:none;
+    border-radius:13px;
+    padding:15px;
+    cursor:pointer;
+    text-decoration:none;
+    box-shadow:0 8px 24px rgba(62,207,142,0.3);
+    margin-bottom:10px;
+  }
+  .steps{
+    background:#161d36;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:14px 16px;
+    text-align:left;
+    margin-top:20px;
+  }
+  .steps .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#5c6584;font-weight:700;margin-bottom:10px;}
+  .steps ol{padding-left:18px;}
+  .steps li{font-size:12.5px;color:#8891ab;margin-bottom:6px;line-height:1.5;}
+  .steps li:last-child{margin-bottom:0;}
+  .note{font-size:11.5px;color:#5c6584;margin-top:14px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">💳</div>
+  <h1>Complete Payment</h1>
+  <p class="sub">Bible Quiz Registration · Kings Generation Church</p>
+
+  <div class="amount-badge">₹100</div>
+
+  <div class="upi-row">
+    <div>
+      <div class="k">UPI ID</div>
+      <div class="v" id="upiIdEl">${UPI_ID}</div>
+    </div>
+    <button class="copy-btn" id="copyBtn" onclick="copyUpi()">Copy</button>
+  </div>
+
+  <a class="pay-btn" href="${upiUri}">Open UPI App &amp; Pay</a>
+
+  <div class="divider">or scan QR code</div>
+
+  <div class="qr-wrap">
+    <img src="${qrUrl}" alt="UPI QR Code">
+    <span class="lbl">Scan with GPay, PhonePe, Paytm or any UPI app</span>
+  </div>
+
+  <div class="steps">
+    <div class="k">Steps to complete payment</div>
+    <ol>
+      <li>Tap <strong>"Open UPI App &amp; Pay"</strong> or scan the QR code above.</li>
+      <li>Confirm the amount <strong>₹100</strong> and complete the payment.</li>
+      <li>Take a <strong>screenshot</strong> of the success screen.</li>
+      <li>Come back to the registration form and <strong>upload the screenshot</strong>.</li>
+    </ol>
+  </div>
+
+  <p class="note">Payee name: <strong>Kings Generation Church</strong><br>This is a one-time registration fee for the Bible Quiz event on July 12 at Joy Auditorium, Irugur.</p>
+</div>
+<script>
+function copyUpi(){
+  navigator.clipboard.writeText('${UPI_ID}').then(function(){
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  }).catch(function(){
+    const el = document.getElementById('upiIdEl');
+    const r = document.createRange();
+    r.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(r);
+  });
+}
+<\/script>
+</body>
+</html>`);
+    w.document.close();
+  });
+
+  document.getElementById('upiQr').src =
+    `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUri)}`;
+  document.getElementById('upiIdText').textContent = UPI_ID;
+
+  document.getElementById('showQrBtn').addEventListener('click', function(){
+    const wrap = document.getElementById('payQrWrap');
+    const showing = wrap.style.display !== 'none';
+    wrap.style.display = showing ? 'none' : 'flex';
+    this.textContent = showing ? 'On a computer? Show QR to scan instead' : 'Hide QR code';
+  });
+
+  // ---- Pay Now / Pay Later choice ----
+  let payChoice = 'later';
+  const choicePayLater = document.getElementById('choicePayLater');
+  const choicePayNow = document.getElementById('choicePayNow');
+  const payNowSection = document.getElementById('payNowSection');
+  const payLaterNote = document.getElementById('payLaterNote');
+  const paymentProofField = document.getElementById('f-paymentProof');
+
+  function applyPayChoice(choice){
+    payChoice = choice;
+    choicePayLater.classList.toggle('selected', choice === 'later');
+    choicePayNow.classList.toggle('selected', choice === 'now');
+    payNowSection.style.display = choice === 'now' ? 'block' : 'none';
+    payLaterNote.style.display = choice === 'later' ? 'block' : 'none';
+    paymentProofField.style.display = choice === 'now' ? 'block' : 'none';
+    if(choice === 'later'){
+      setInvalid('f-paymentProof', false);
+    }
+  }
+
+  choicePayLater.addEventListener('click', () => applyPayChoice('later'));
+  choicePayNow.addEventListener('click', () => applyPayChoice('now'));
+  applyPayChoice('later');
+
+  // ---- Payment screenshot: compress to a small base64 JPEG ----
+  let paymentProofDataUrl = '';
+  const paymentProofInput = document.getElementById('paymentProof');
+  const paymentProofPreview = document.getElementById('paymentProofPreview');
+  const paymentProofHint = document.getElementById('paymentProofHint');
+
+  function compressImage(file, maxWidth, quality){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Could not read file'));
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Could not load image'));
+        img.onload = () => {
+          const scale = Math.min(1, maxWidth / img.width);
+          const w = Math.round(img.width * scale);
+          const h = Math.round(img.height * scale);
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  paymentProofInput.addEventListener('change', async function(){
+    const file = paymentProofInput.files[0];
+    paymentProofDataUrl = '';
+    paymentProofPreview.style.display = 'none';
+    if(!file) return;
+
+    paymentProofHint.textContent = 'Processing image...';
+    try{
+      let dataUrl = await compressImage(file, 800, 0.6);
+      // If still too large, compress harder
+      if(dataUrl.length > 700000){
+        dataUrl = await compressImage(file, 500, 0.45);
+      }
+      paymentProofDataUrl = dataUrl;
+      paymentProofPreview.src = dataUrl;
+      paymentProofPreview.style.display = 'block';
+      paymentProofHint.textContent = 'Screenshot ready to submit.';
+      setInvalid('f-paymentProof', false);
+    } catch(err){
+      console.error('Failed to process payment screenshot:', err);
+      paymentProofHint.textContent = 'Could not process that image. Please try another.';
+    }
+  });
 
   function setInvalid(id, invalid){
     document.getElementById(id).classList.toggle('invalid', invalid);
@@ -882,6 +1352,10 @@
       catError.style.visibility = 'hidden';
     }
 
+    const proofInvalid = payChoice === 'now' && !paymentProofDataUrl;
+    setInvalid('f-paymentProof', proofInvalid);
+    if(proofInvalid) valid = false;
+
     if(!valid) return;
 
     submitBtn.disabled = true;
@@ -891,6 +1365,8 @@
       name, age: ageNum, gender: gender || '—', phone,
       careCell: careCell || '—',
       category: category.value,
+      paymentProof: payChoice === 'now' ? paymentProofDataUrl : '',
+      paymentStatus: payChoice === 'now' ? 'submitted' : 'pay-at-venue',
       createdAt: serverTimestamp()
     };
 
@@ -917,6 +1393,11 @@
     form.reset();
     document.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
     document.getElementById('cat-error').style.visibility = 'hidden';
+    paymentProofDataUrl = '';
+    paymentProofPreview.style.display = 'none';
+    paymentProofPreview.src = '';
+    paymentProofHint.textContent = 'Upload a screenshot showing the successful payment.';
+    applyPayChoice('later');
     form.style.display = 'block';
     confirmCard.style.display = 'none';
     submitBtn.disabled = false;
@@ -992,7 +1473,7 @@
 
   async function loadRegistrations(){
     const tbody = document.getElementById('regTableBody');
-    tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9">Loading...</td></tr>';
     try{
       const q = query(collection(db, COLLECTION), orderBy('createdAt', 'desc'));
       const snap = await getDocs(q);
@@ -1005,13 +1486,15 @@
           category: (data.category || '').split(' ')[0],
           phone: data.phone || '',
           careCell: data.careCell || '—',
+          paymentProof: data.paymentProof || '',
+          paymentStatus: data.paymentStatus || '',
           createdAt: data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null
         };
       });
       renderTable();
     } catch(err){
       console.error('Failed to load registrations:', err);
-      tbody.innerHTML = '<tr><td colspan="7">Could not load registrations. Check connection and Firestore rules.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9">Could not load registrations. Check connection and Firestore rules.</td></tr>';
     }
   }
 
@@ -1052,6 +1535,11 @@
         <td><span class="cat-chip ${r.category.toLowerCase()}">${r.category}</span></td>
         <td>${escapeHtml(r.phone)}</td>
         <td>${escapeHtml(r.careCell)}</td>
+        <td>${r.paymentProof
+            ? `<img src="${r.paymentProof}" class="proof-thumb" onclick="viewProof('${r.id}')" title="View payment proof">`
+            : (r.paymentStatus === 'pay-at-venue'
+                ? '<span class="proof-missing">Pay at venue</span>'
+                : '<span class="proof-missing">No proof</span>')}</td>
         <td>${r.createdAt ? r.createdAt.toLocaleDateString('en-IN', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '—'}</td>
         <td><button type="button" class="btn-delete" onclick="deleteRegistration('${r.id}')" title="Delete registration">✕</button></td>
       </tr>
@@ -1102,6 +1590,14 @@
     a.download = `bible_quiz_registrations_${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  window.viewProof = function(id){
+    const reg = allRegistrations.find(r => r.id === id);
+    if(!reg || !reg.paymentProof) return;
+    const w = window.open('', '_blank');
+    if(!w) { alert('Please allow popups to view the payment screenshot.'); return; }
+    w.document.write(`<title>Payment proof - ${escapeHtml(reg.name)}</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="${reg.paymentProof}" style="max-width:100%;max-height:100vh;"></body>`);
   };
 
   window.deleteRegistration = async function(id){
